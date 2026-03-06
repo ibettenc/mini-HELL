@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ibettenc <ibettenc@student.42.fr>          +#+  +:+       +#+         #
+#    By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/08 13:24:55 by niguilbe          #+#    #+#              #
-#    Updated: 2026/02/24 16:17:22 by ibettenc         ###   ########.fr        #
+#    Updated: 2026/03/05 14:25:09 by niguilbe         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME        := minishell
 
 CC          := gcc
-CFLAGS      := -Wall -Wextra -Werror
+CFLAGS      := -Wall -Wextra -Werror -fPIC
 
 # === Paths ===
 SRC_DIR     := sources
@@ -32,7 +32,7 @@ INCLUDES    := -I$(INC_DIR) -I$(LIBFT_DIR)
 # 1. Main
 SRCS_MAIN   := main/main.c
 
-# 2. Parsing (Partie Mate)
+# 2. Parsing
 SRCS_PARS   := 	parsing/lexer.c \
                	parsing/lexer_extract_functions.c \
             	parsing/check_syntax.c \
@@ -44,9 +44,11 @@ SRCS_PARS   := 	parsing/lexer.c \
             	parsing/exit_code.c
 
 # 3. Environment
-SRCS_ENV    := env/env.c
+SRCS_ENV    :=	env/env.c \
+				env/env_utils.c \
+				env/env_utils_2.c
 
-# 4. Builtins (Dossier séparé)
+# 4. Builtins
 SRCS_BUILT  := 	builtins/builtins.c \
 				builtins/cd.c \
 				builtins/echo.c \
@@ -54,11 +56,13 @@ SRCS_BUILT  := 	builtins/builtins.c \
 				builtins/export.c \
 				builtins/ft_env.c \
 				builtins/pwd.c \
+				builtins/export_utils.c \
 				builtins/unset.c 
 
 # 5. Executor
 
 SRCS_EXEC   :=	executor/exec.c \
+				executor/exec_utils.c \
             	executor/one_cmd.c \
             	executor/redirections.c \
 				executor/pipeline.c \

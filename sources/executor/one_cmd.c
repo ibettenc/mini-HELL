@@ -6,39 +6,19 @@
 /*   By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 11:47:28 by niguilbe          #+#    #+#             */
-/*   Updated: 2026/01/16 17:37:31 by niguilbe         ###   ########.fr       */
+/*   Updated: 2026/03/05 14:17:20 by niguilbe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-static int	wait_exit_code(pid_t pid)
-{
-	int	status;
-
-	if (waitpid(pid, &status, 0) < 0)
-		return (1);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	if (WIFSIGNALED(status))
-		return (128 + WTERMSIG(status));
-	return (1);
-}
-
 int	exec_external_child(t_shell *sh, t_command *cmd)
 {
 	char			**envp;
 	char			*path;
-	struct stat		path_stat;
 
-	if (stat(cmd->args[0], &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
-	{
-		if (ft_strchr(cmd->args[0], '/'))
-		{
-			print_cmd_error(cmd->args[0], "Is a directory");
-			return (126);
-		}
-	}
+	if (check_directory_error(cmd->args[0]) == 126)
+		return (126);
 	envp = env_to_array(sh->env);
 	if (!envp)
 		return (1);
@@ -75,14 +55,25 @@ static void	child_process(t_shell *sh, t_command *cmd)
 	exit(code);
 }
 
-void	execute_single_cmd(t_shell *sh, t_command *cmd)
+static void	execute_forked_cmd(t_shell *sh, t_command *cmd)
 {
 	pid_t	pid;
-	int		code;
 
-	if (!cmd || !cmd->args || !cmd->args[0])
+	pid = fork();
+	if (pid < 0)
+	{
+		print_cmd_error("fork", "failed");
+		sh->exit_code = 1;
 		return ;
-	if (cmd->args[0][0] == '\0')
+	}
+	if (pid == 0)
+		child_process(sh, cmd);
+	sh->exit_code = wait_exit_code(pid);
+}
+
+void	execute_single_cmd(t_shell *sh, t_command *cmd)
+{
+	if (!cmd || !cmd->args || !cmd->args[0] || cmd->args[0][0] == '\0')
 		return ;
 	if (is_parent_builtin(cmd->args[0]))
 	{
@@ -94,15 +85,5 @@ void	execute_single_cmd(t_shell *sh, t_command *cmd)
 		sh->exit_code = exec_builtin(sh, cmd);
 		return ;
 	}
-	pid = fork();
-	if (pid < 0)
-	{
-		print_cmd_error("fork", "failed");
-		sh->exit_code = 1;
-		return ;
-	}
-	if (pid == 0)
-		child_process(sh, cmd);
-	code = wait_exit_code(pid);
-	sh->exit_code = code;
+	execute_forked_cmd(sh, cmd);
 }

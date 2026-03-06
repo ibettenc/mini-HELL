@@ -6,7 +6,7 @@
 /*   By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 15:54:34 by niguilbe          #+#    #+#             */
-/*   Updated: 2026/01/16 17:36:24 by niguilbe         ###   ########.fr       */
+/*   Updated: 2026/03/05 13:49:59 by niguilbe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,15 @@ static void	read_heredoc_input(int write_fd, char *delimiter)
 	}
 }
 
+static void	exec_heredoc_child(int *fd, char *delimiter)
+{
+	signal(SIGINT, SIG_DFL);
+	close(fd[0]);
+	read_heredoc_input(fd[1], delimiter);
+	close(fd[1]);
+	exit(0);
+}
+
 int	handle_heredoc(char *delimiter)
 {
 	int		fd[2];
@@ -50,17 +59,8 @@ int	handle_heredoc(char *delimiter)
 		return (-1);
 	}
 	if (pid == 0)
-	{
-		signal(SIGINT, SIG_DFL);
-		close(fd[0]);
-		read_heredoc_input(fd[1], delimiter);
-		close(fd[1]);
-		exit(0);
-	}
-	else
-	{
-		close(fd[1]);
-		waitpid(pid, &status, 0);
-		return (fd[0]);
-	}
+		exec_heredoc_child(fd, delimiter);
+	close(fd[1]);
+	waitpid(pid, &status, 0);
+	return (fd[0]);
 }

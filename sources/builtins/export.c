@@ -6,7 +6,7 @@
 /*   By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 19:06:30 by niguilbe          #+#    #+#             */
-/*   Updated: 2026/01/16 17:29:42 by niguilbe         ###   ########.fr       */
+/*   Updated: 2026/03/05 15:31:27 by niguilbe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,45 +49,6 @@ static void	process_export_arg(t_shell *shell, char *arg)
 		return ;
 }
 
-int	ft_strcmp(char *s1, char *s2)
-{
-	int	i;
-
-	i = 0;
-	while (s1[i] && s2[i] && s1[i] == s2[i])
-		i++;
-	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
-}
-
-static void	sort_env_array(char **tab, int size)
-{
-	int		i;
-	int		j;
-	int		sorted;
-	char	*tmp;
-
-	i = 0;
-	while (i < size - 1)
-	{
-		sorted = 1;
-		j = 0;
-		while (j < size - 1 - i)
-		{
-			if (ft_strcmp(tab[j], tab[j + 1]) > 0)
-			{
-				tmp = tab[j];
-				tab[j] = tab[j + 1];
-				tab[j + 1] = tmp;
-				sorted = 0;
-			}
-			j++;
-		}
-		if (sorted)
-			break ;
-		i++;
-	}
-}
-
 static void	print_export_line(char *str)
 {
 	int	i;
@@ -111,23 +72,22 @@ static void	print_export_line(char *str)
 
 static int	export_display(t_shell *shell)
 {
+	t_env	*tmp;
 	char	**tab;
 	int		i;
 	int		count;
 
-	tab = env_to_array(shell->env);
+	count = 0;
+	tmp = shell->env;
+	while (tmp && ++count)
+		tmp = tmp->next;
+	tab = get_export_array(shell->env, count);
 	if (!tab)
 		return (1);
-	count = 0;
-	while (tab[count])
-		count++;
 	sort_env_array(tab, count);
-	i = 0;
-	while (tab[i])
-	{
+	i = -1;
+	while (tab[++i])
 		print_export_line(tab[i]);
-		i++;
-	}
 	free_strs(tab);
 	return (0);
 }

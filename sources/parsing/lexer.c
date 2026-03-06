@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ibettenc <ibettenc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 12:55:57 by ibettenc          #+#    #+#             */
-/*   Updated: 2026/03/02 17:05:53 by ibettenc         ###   ########.fr       */
+/*   Updated: 2026/03/05 15:53:54 by niguilbe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,24 +49,35 @@ static char	*next_part(char *line, int *i, int *is_sq)
 	return (extract_word(line, i));
 }
 
-static void	build_word(t_token **tokens, char *line, int *i, int *n)
+static char	*extract_full_word(char *line, int *i, int *is_sq)
 {
 	char	*value;
 	char	*part;
+	char	*tmp;
+
+	value = ft_strdup("");
+	while (line[*i] && line[*i] != ' ' && line[*i] != '\t' && line[*i] != '|'
+		&& line[*i] != '<' && line[*i] != '>')
+	{
+		part = next_part(line, i, is_sq);
+		tmp = value;
+		value = ft_strjoin(tmp, part);
+		free(tmp);
+		free(part);
+	}
+	return (value);
+}
+
+static void	build_word(t_token **tokens, char *line, int *i, int *n)
+{
+	char	*value;
 	int		is_sq;
 	int		starts_with_var;
 	t_token	*last;
 
-	value = ft_strdup("");
 	is_sq = 0;
 	starts_with_var = (line[*i] == '$');
-	while (line[*i] && line[*i] != ' ' && line[*i] != '\t'
-		&& line[*i] != '|' && line[*i] != '<' && line[*i] != '>')
-	{
-		part = next_part(line, i, &is_sq);
-		value = ft_strjoin(value, part);
-		free(part);
-	}
+	value = extract_full_word(line, i, &is_sq);
 	add_token(tokens, WORD, value, (*n)++);
 	last = *tokens;
 	while (last->next)
@@ -77,8 +88,8 @@ static void	build_word(t_token **tokens, char *line, int *i, int *n)
 
 static void	process_token(t_token **tokens, char *line, int *i, int *n)
 {
-	if ((line[*i] == '<' && line[*i + 1] == '<')
-		|| (line[*i] == '>' && line[*i + 1] == '>'))
+	if ((line[*i] == '<' && line[*i + 1] == '<') || (line[*i] == '>' && line[*i
+				+ 1] == '>'))
 		return (extract_double_sign(tokens, line, i, n));
 	if (line[*i] == '|' || line[*i] == '<' || line[*i] == '>')
 		return (extract_single_sign(tokens, line, i, n));

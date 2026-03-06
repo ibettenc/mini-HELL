@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ibettenc <ibettenc@student.42.fr>          +#+  +:+       +#+        */
+/*   By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 12:37:23 by niguilbe          #+#    #+#             */
-/*   Updated: 2026/03/02 16:47:39 by ibettenc         ###   ########.fr       */
+/*   Updated: 2026/03/05 15:32:02 by niguilbe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,12 @@ int					ft_cd(t_shell *shell, t_command *cmd);
 
 // export.c
 int					ft_export(t_shell *shell, t_command *cmd);
+
+// export_utils.c
+
+void				sort_env_array(char **tab, int size);
 int					ft_strcmp(char *s1, char *s2);
+char				**get_export_array(t_env *env, int count);
 
 // unset.c
 int					ft_unset(t_shell *shell, t_command *cmd);
@@ -112,15 +117,20 @@ int					ft_unset(t_shell *shell, t_command *cmd);
 
 // Env.c
 t_env				*env_init(char **envp);
-void				env_add_node(t_env **env, t_env *new);
 char				*env_get(t_env *env, char *key);
 void				env_set(t_env **env, char *key, char *value);
 void				env_unset(t_env **env, char *key);
-char				**env_to_array(t_env *env);
 void				split_key_value(char *str, char **key, char **value);
-char				*ft_strjoin_three(char *s1, char *s2, char *s3);
+
+// Env_utils.c
 struct s_env		*env_new_node(char *key, char *value);
+void				env_add_node(t_env **env, t_env *new);
+char				**env_to_array(t_env *env);
+char				*ft_strjoin_three(char *s1, char *s2, char *s3);
 void				env_clear(t_env *env);
+
+//Env_utils_2.c 
+void				set_default_pwd(t_env **env);
 
 // ------------------------ // --- EXECUTOR  --- // ------------------------ //
 
@@ -141,6 +151,10 @@ int					apply_redirections(t_command *cmd);
 
 // Heredoc.c
 int					handle_heredoc(char *delimiter);
+
+// exec_utils.c
+int					wait_exit_code(pid_t pid);
+int					check_directory_error(char *cmd_name);
 
 // ------------------------ // --- MEMORY --- // --------------------------- //
 

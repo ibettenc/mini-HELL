@@ -6,7 +6,7 @@
 #    By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/30 11:59:01 by niguilbe          #+#    #+#              #
-#    Updated: 2025/08/25 12:35:27 by niguilbe         ###   ########.fr        #
+#    Updated: 2026/03/05 14:25:19 by niguilbe         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = libft.a
 LIBC = ar rcs
 CC = cc
 RM = rm -f
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIC
 
 # Sources de la libft
 SRCS = ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c ft_isprint.c \

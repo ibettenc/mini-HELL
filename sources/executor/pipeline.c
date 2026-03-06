@@ -6,7 +6,7 @@
 /*   By: niguilbe <niguilbe@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 16:06:00 by niguilbe          #+#    #+#             */
-/*   Updated: 2026/01/16 17:38:40 by niguilbe         ###   ########.fr       */
+/*   Updated: 2026/03/05 14:03:28 by niguilbe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,17 @@ static void	exec_in_pipe(t_shell *shell, t_command *cmd, int prev_pipe,
 	}
 }
 
+static void	update_pipes(t_command *cmd, int *prev_pipe, int *pipe_fd)
+{
+	if (*prev_pipe != -1)
+		close(*prev_pipe);
+	if (cmd->next)
+	{
+		close(pipe_fd[1]);
+		*prev_pipe = pipe_fd[0];
+	}
+}
+
 void	execute_pipeline(t_shell *shell, t_command *cmd)
 {
 	int		pipe_fd[2];
@@ -83,13 +94,7 @@ void	execute_pipeline(t_shell *shell, t_command *cmd)
 			perror("fork");
 		if (last_pid == 0)
 			exec_in_pipe(shell, cmd, prev_pipe, pipe_fd);
-		if (prev_pipe != -1)
-			close(prev_pipe);
-		if (cmd->next)
-		{
-			close(pipe_fd[1]);
-			prev_pipe = pipe_fd[0];
-		}
+		update_pipes(cmd, &prev_pipe, pipe_fd);
 		cmd = cmd->next;
 	}
 	wait_for_pipeline(shell, last_pid);
